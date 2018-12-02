@@ -1,6 +1,7 @@
-package com.sizov.vitaly.marsphotos;
+package com.sizov.vitaly.marsphotos.api;
 
 import com.google.gson.Gson;
+import com.sizov.vitaly.marsphotos.BuildConfig;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;

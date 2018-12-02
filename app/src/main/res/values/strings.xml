@@ -3,4 +3,7 @@
     <string name="connect_error">Ошибка соединения</string>
     <string name="request_error">Ошибка запроса</string>
     <string name="delete">Delete element</string>
+    <string name="first_start">Для первого запуска необходим интернет</string>
+    <string name="no_connect_to_internet">Нет подключения к интернету</string>
+    <string name="retry">Загрузить фото</string>
 </resources>

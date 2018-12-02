@@ -1,4 +1,7 @@
-package com.sizov.vitaly.marsphotos;
+package com.sizov.vitaly.marsphotos.api;
+
+import com.sizov.vitaly.marsphotos.BuildConfig;
+import com.sizov.vitaly.marsphotos.Photo;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

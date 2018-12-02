@@ -25,7 +25,7 @@ public class Photo {
         List<LatestPhotosBean> latestPhotos = getLatestPhotos();
         Collections.reverse(latestPhotos);
 
-        if (latestPhotos.size() > 20) {
+        if (latestPhotos.size() >= 20) {
             List<LatestPhotosBean> finalArray = latestPhotos.subList(0, 20);
             return finalArray;
         }
@@ -39,8 +39,10 @@ public class Photo {
 
     public static class LatestPhotosBean {
 
-        @SerializedName("id")
         private int mId;
+
+        @SerializedName("id")
+        private int mIdPhoto;
 
         @SerializedName("sol")
         private int mSol;
@@ -51,12 +53,20 @@ public class Photo {
         @SerializedName("earth_date")
         private String mEarthDate;
 
-        public int getId() {
-            return mId;
+        public LatestPhotosBean(int mId, int idPhoto, int sol, String imgSrc, String earthDate) {
+            mId = mId;
+            mIdPhoto = idPhoto;
+            mSol = sol;
+            mImgSrc = imgSrc;
+            mEarthDate = earthDate;
         }
 
-        public void setId(int id) {
-            mId = id;
+        public int getIdPhoto() {
+            return mIdPhoto;
+        }
+
+        public void setIdPhoto(int idPhoto) {
+            mIdPhoto = idPhoto;
         }
 
         public int getSol() {

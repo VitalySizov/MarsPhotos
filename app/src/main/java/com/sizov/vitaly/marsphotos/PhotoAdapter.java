@@ -41,7 +41,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
         Uri uri = Uri.parse(photosBean.getImgSrc());
         Picasso.get().load(uri).into(viewHolder.mPhoto);
-        viewHolder.mIdPhotoText.setText("id photo : " + String.valueOf(photosBean.getId()));
+        viewHolder.mIdPhotoText.setText("id photo : " + String.valueOf(photosBean.getIdPhoto()));
 
         viewHolder.itemView.setOnClickListener(view -> {
             showFullPhoto(photosBean);

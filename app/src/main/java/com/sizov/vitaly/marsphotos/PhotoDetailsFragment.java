@@ -33,7 +33,6 @@ public class PhotoDetailsFragment extends Fragment {
 
         Intent intent = getActivity().getIntent();
         mImgSrc = intent.getStringExtra("EXTRA_IMG_SRC");
-
     }
 
     @Nullable
