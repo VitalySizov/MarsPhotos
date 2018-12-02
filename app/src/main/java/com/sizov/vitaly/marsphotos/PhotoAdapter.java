@@ -1,8 +1,10 @@
 package com.sizov.vitaly.marsphotos;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,6 +42,16 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         Uri uri = Uri.parse(photosBean.getImgSrc());
         Picasso.get().load(uri).into(viewHolder.mPhoto);
         viewHolder.mIdPhotoText.setText("id photo : " + String.valueOf(photosBean.getId()));
+
+        viewHolder.itemView.setOnClickListener(view -> {
+            showFullPhoto(photosBean);
+        });
+    }
+
+    private void showFullPhoto(Photo.LatestPhotosBean photosBean) {
+        Intent intent = new Intent(mContext, PhotoDetailsActivity.class);
+        intent.putExtra("EXTRA_IMG_SRC", photosBean.getImgSrc());
+        mContext.startActivity(intent);
     }
 
     @Override
@@ -54,12 +66,20 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
         private ImageView mPhoto;
         private TextView mIdPhotoText;
+        private CardView mCardView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             mIdPhotoText = itemView.findViewById(R.id.tv_id_photo);
             mPhoto = itemView.findViewById(R.id.iv_photo);
+            mCardView = itemView.findViewById(R.id.card_view);
+
+            mCardView.setOnLongClickListener(view -> {
+                mLatestPhotosBeans.remove(getAdapterPosition());
+                notifyDataSetChanged();
+                return false;
+            });
         }
     }
 }

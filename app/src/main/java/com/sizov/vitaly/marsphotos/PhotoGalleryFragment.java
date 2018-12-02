@@ -23,11 +23,13 @@ import retrofit2.Response;
 public class PhotoGalleryFragment extends Fragment {
 
     public static final String TAG = PhotoGalleryFragment.class.getSimpleName();
+    private static final String KEY_OBJECTS = "photo";
     List<Photo.LatestPhotosBean> photos;
     private Photo photo;
     private List<Photo.LatestPhotosBean> mLatestPhotosBeanList;
     private RecyclerView mRecyclerView;
     private TextView mTextView;
+    private PhotoAdapter photoAdapter;
 
     public static PhotoGalleryFragment newInstance() {
         return new PhotoGalleryFragment();
@@ -62,8 +64,9 @@ public class PhotoGalleryFragment extends Fragment {
         return view;
     }
 
+
     public void setupAdapter() {
-        PhotoAdapter photoAdapter = new PhotoAdapter(photos, getContext());
+        photoAdapter = new PhotoAdapter(photos, getContext());
         mRecyclerView.setAdapter(photoAdapter);
         photoAdapter.notifyDataSetChanged();
     }
