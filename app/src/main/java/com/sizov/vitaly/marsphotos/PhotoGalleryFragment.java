@@ -6,10 +6,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -18,6 +23,11 @@ import retrofit2.Response;
 public class PhotoGalleryFragment extends Fragment {
 
     public static final String TAG = PhotoGalleryFragment.class.getSimpleName();
+    List<Photo.LatestPhotosBean> photos;
+    private Photo photo;
+    private List<Photo.LatestPhotosBean> mLatestPhotosBeanList;
+    private RecyclerView mRecyclerView;
+    private TextView mTextView;
 
     public static PhotoGalleryFragment newInstance() {
         return new PhotoGalleryFragment();
@@ -31,6 +41,10 @@ public class PhotoGalleryFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+
+        if (mLatestPhotosBeanList != null) {
+            setupAdapter();
+        }
     }
 
     @Nullable
@@ -38,7 +52,20 @@ public class PhotoGalleryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_photo_gallery, container, false);
 
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+
         return view;
+    }
+
+    public void setupAdapter() {
+        PhotoAdapter photoAdapter = new PhotoAdapter(photos, getContext());
+        mRecyclerView.setAdapter(photoAdapter);
+        photoAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -55,7 +82,10 @@ public class PhotoGalleryFragment extends Fragment {
                     if (!response.isSuccessful()) {
                         showMessage(R.string.connect_error);
                     } else {
-                        Photo photosBean = response.body();
+                        photo = response.body();
+//                        photos = photo.getLatestPhotos();
+                        photos = photo.getLastTwentyPhotos();
+                        setupAdapter();
                     }
                 });
             }
