@@ -14,14 +14,15 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> {
 
-    private List<Photo.LatestPhotosBean> mLatestPhotosBeans;
+    private ArrayList<Photo.LatestPhotosBean> mLatestPhotosBeans;
     private Context mContext;
 
-    public PhotoAdapter(List<Photo.LatestPhotosBean> latestPhotosBeans, Context context) {
+    public PhotoAdapter(ArrayList<Photo.LatestPhotosBean> latestPhotosBeans, Context context) {
         mLatestPhotosBeans = latestPhotosBeans;
         mContext = context;
     }
@@ -78,6 +79,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
             mCardView.setOnLongClickListener(view -> {
                 mLatestPhotosBeans.remove(getAdapterPosition());
                 notifyDataSetChanged();
+                notifyItemRangeChanged(getAdapterPosition(), mLatestPhotosBeans.size());
                 return false;
             });
         }

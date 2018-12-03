@@ -40,41 +40,90 @@ public class PhotoGalleryFragment extends Fragment {
 
     public static final String TAG = PhotoGalleryFragment.class.getSimpleName();
     private static final String KEY_OBJECTS = "photo";
-    private List<Photo.LatestPhotosBean> photos;
+    private ArrayList<Photo.LatestPhotosBean> photos;
     private PhotoDbHelper mPhotoDbHelper;
     private Photo photo;
+    private Photo.LatestPhotosBean mLatestPhotosBean;
     private List<Photo.LatestPhotosBean> mLatestPhotosBeanList;
     private RecyclerView mRecyclerView;
     private TextView mErrorTextView;
     private ImageView mErrorImageView;
     private Button mButtonRetry;
     private ProgressBar mProgressBar;
-    private PhotoAdapter photoAdapter;
 
-    private View.OnClickListener mOnRetryListener = view -> getPhotos();
+    private View.OnClickListener mOnRetryListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (isOnline()) {
+                mButtonRetry.setVisibility(View.INVISIBLE);
+                mErrorImageView.setVisibility(View.GONE);
+                mErrorTextView.setVisibility(View.INVISIBLE);
+                mProgressBar.setVisibility(View.VISIBLE);
+                getPhotos();
+            } else {
+                mErrorTextView.setVisibility(View.VISIBLE);
+                mButtonRetry.setVisibility(View.VISIBLE);
+                mErrorTextView.setText(R.string.no_connect_to_internet);
+                mErrorImageView.setVisibility(View.VISIBLE);
+                Snackbar snackbar = Snackbar
+                        .make(getView(), "Загрузить сохраненные фото ?", Snackbar.LENGTH_LONG)
+                        .setAction("Да", view1 -> exportDataFromDb());
+
+                snackbar.setActionTextColor(Color.GREEN);
+                snackbar.show();
+            }
+        }
+    };
 
     public static PhotoGalleryFragment newInstance() {
         return new PhotoGalleryFragment();
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "onAttach: ");
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: ");
+        getPhotos();
+
+        setRetainInstance(true);
     }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(KEY_OBJECTS, photos);
+    }
+
 
     @Override
     public void onStart() {
         super.onStart();
+        Log.d(TAG, "onStart: ");
 
-        if (mLatestPhotosBeanList != null) {
+        if (photos != null) {
             setupAdapter();
+        } else {
+            Log.d(TAG, "No items in List");
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: ");
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_photo_gallery, container, false);
+        final View view = inflater.inflate(R.layout.fragment_photo_gallery, container, false);
 
         mProgressBar = (ProgressBar) view.findViewById(R.id.progress_download);
 
@@ -87,29 +136,44 @@ public class PhotoGalleryFragment extends Fragment {
         mButtonRetry = (Button) view.findViewById(R.id.button_retry);
         mButtonRetry.setOnClickListener(mOnRetryListener);
 
+        if (isOnline()) {
+            mProgressBar.setVisibility(View.VISIBLE);
+        } else {
+            mErrorImageView.setVisibility(View.VISIBLE);
+            mButtonRetry.setVisibility(View.VISIBLE);
+            mErrorTextView.setVisibility(View.VISIBLE);
+        }
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(linearLayoutManager);
+
+        Log.d(TAG, "onCreateView: ");
 
         return view;
     }
 
     public void setupAdapter() {
-        photoAdapter = new PhotoAdapter(photos, getContext());
+        PhotoAdapter photoAdapter = new PhotoAdapter(photos, getContext());
         mRecyclerView.setAdapter(photoAdapter);
         photoAdapter.notifyDataSetChanged();
+
+        mErrorImageView.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
+        mButtonRetry.setVisibility(View.INVISIBLE);
+        mErrorTextView.setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Log.d(TAG, "onActivityCreated: ");
 
         getPhotos();
     }
 
     private void getPhotos() {
 
-        if (isOnline()) {
-            mProgressBar.setVisibility(View.VISIBLE);
+        if (isOnline() && photos == null) {
             ApiUtils.getApi().getLatestPhotos().enqueue(new Callback<Photo>() {
 
                 Handler mHandler = new Handler(getActivity().getMainLooper());
@@ -126,11 +190,10 @@ public class PhotoGalleryFragment extends Fragment {
                             mButtonRetry.setVisibility(View.INVISIBLE);
 
                             photo = response.body();
-//                        photos = photo.getLatestPhotos();
                             photos = photo.getLastTwentyPhotos();
-                            saveDbData();
                             setupAdapter();
                             mProgressBar.setVisibility(View.INVISIBLE);
+                            saveDbData();
                         }
                     });
                 }
@@ -142,18 +205,6 @@ public class PhotoGalleryFragment extends Fragment {
                     });
                 }
             });
-
-        } else {
-            mErrorTextView.setVisibility(View.VISIBLE);
-            mButtonRetry.setVisibility(View.VISIBLE);
-            mErrorTextView.setText(R.string.no_connect_to_internet);
-            mErrorImageView.setVisibility(View.VISIBLE);
-            Snackbar snackbar = Snackbar
-                    .make(getView(), "Загрузить сохраненные фото ?", Snackbar.LENGTH_LONG)
-                    .setAction("Да", view ->
-                            exportDataFromDb());
-            snackbar.setActionTextColor(Color.GREEN);
-            snackbar.show();
         }
     }
 

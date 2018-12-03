@@ -1,33 +1,55 @@
 package com.sizov.vitaly.marsphotos;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Photo {
+public class Photo implements Parcelable {
 
     @SerializedName("latest_photos")
-    private List<LatestPhotosBean> mLatestPhotos;
+    private ArrayList<LatestPhotosBean> mLatestPhotos;
 
-    private List<Photo> mPhotos;
+    private ArrayList<Photo> mPhotos;
 
-    public List<LatestPhotosBean> getLatestPhotos() {
+    protected Photo(Parcel in) {
+        mPhotos = in.createTypedArrayList(Photo.CREATOR);
+    }
+
+    public static final Creator<Photo> CREATOR = new Creator<Photo>() {
+        @Override
+        public Photo createFromParcel(Parcel in) {
+            return new Photo(in);
+        }
+
+        @Override
+        public Photo[] newArray(int size) {
+            return new Photo[size];
+        }
+    };
+
+    public ArrayList<LatestPhotosBean> getLatestPhotos() {
         return mLatestPhotos;
     }
 
-    public void setLatestPhotos(List<LatestPhotosBean> latestPhotos) {
+    public void setLatestPhotos(ArrayList<LatestPhotosBean> latestPhotos) {
         mLatestPhotos = latestPhotos;
     }
 
-    public List<LatestPhotosBean> getLastTwentyPhotos() {
+    public ArrayList<LatestPhotosBean> getLastTwentyPhotos() {
 
-        List<LatestPhotosBean> latestPhotos = getLatestPhotos();
+        ArrayList<LatestPhotosBean> latestPhotos = getLatestPhotos();
         Collections.reverse(latestPhotos);
 
         if (latestPhotos.size() >= 20) {
-            List<LatestPhotosBean> finalArray = latestPhotos.subList(0, 20);
-            return finalArray;
+            List<LatestPhotosBean> twentyElements = latestPhotos.subList(0,20);
+            ArrayList<LatestPhotosBean> finalTwentyElements = new ArrayList<>(twentyElements.size());
+            finalTwentyElements.addAll(twentyElements);
+            return finalTwentyElements;
         }
 
         return latestPhotos;
@@ -37,7 +59,17 @@ public class Photo {
         return mPhotos;
     }
 
-    public static class LatestPhotosBean {
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeTypedList(mPhotos);
+    }
+
+    public static class LatestPhotosBean implements Parcelable {
 
         private int mId;
 
@@ -60,6 +92,26 @@ public class Photo {
             mImgSrc = imgSrc;
             mEarthDate = earthDate;
         }
+
+        protected LatestPhotosBean(Parcel in) {
+            mId = in.readInt();
+            mIdPhoto = in.readInt();
+            mSol = in.readInt();
+            mImgSrc = in.readString();
+            mEarthDate = in.readString();
+        }
+
+        public static final Creator<LatestPhotosBean> CREATOR = new Creator<LatestPhotosBean>() {
+            @Override
+            public LatestPhotosBean createFromParcel(Parcel in) {
+                return new LatestPhotosBean(in);
+            }
+
+            @Override
+            public LatestPhotosBean[] newArray(int size) {
+                return new LatestPhotosBean[size];
+            }
+        };
 
         public int getIdPhoto() {
             return mIdPhoto;
@@ -91,6 +143,20 @@ public class Photo {
 
         public void setEarthDate(String earthDate) {
             mEarthDate = earthDate;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel parcel, int i) {
+            parcel.writeInt(mId);
+            parcel.writeInt(mIdPhoto);
+            parcel.writeInt(mSol);
+            parcel.writeString(mImgSrc);
+            parcel.writeString(mEarthDate);
         }
     }
 }
